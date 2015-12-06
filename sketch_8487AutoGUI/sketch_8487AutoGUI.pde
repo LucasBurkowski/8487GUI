@@ -12,11 +12,14 @@ boolean circleOver = false;
 int[][] Points = new int[480][480];
 int[] PointXVal = new int[50];
 int[] PointYVal = new int[50];
+int[] leftTicks = new int[100];
+int[] rightTicks = new int[100];
 PrintWriter Coordinates;
 PImage background;
 
 void setup() {
   size(640, 640);
+  strokeWeight(3);
   rectColor = color(255);
   baseColor = color(102);
   PointColor = color(650);
@@ -34,7 +37,6 @@ void newPoint(){
     Points[mouseX-81][mouseY-81] = CurrentPoint;
   }
 }
-
 void getPoint(){
   for(int i = 0; i < 480; i++){
     for(int j = 0; j < 480; j++){
@@ -91,25 +93,28 @@ void clearPoints(){
 }
 
 void writeToFile(){
+  calculatePoints();
  for(int i = 0; i < 50; i++){
-  Coordinates.print(PointXVal[i]+", ");
+  Coordinates.print(leftTicks[i]+", ");
  }
  Coordinates.println();
- for(int j = 0; j < 50; i++){
-   Coordinates.print(PointYVal[i]+", ");
+ for(int j = 0; j < 50; j++){
+   Coordinates.print(rightTicks[j]+", ");
  }
  Coordinates.println();
  Coordinates.close();
 }
 
 void mouseClicked(){
-  newPoint();
-  getPoint();
-  if (overRect(270, 580, 100, 50)){
-   clearPoints(); 
-  }
-  if (overRect(470, 580, 100, 50)){
-   writeToFile(); 
+  if(mouseButton == LEFT){
+    newPoint();
+    getPoint();
+    if (overRect(270, 580, 100, 50)){
+     clearPoints(); 
+    }
+    if (overRect(470, 580, 100, 50)){
+     writeToFile(); 
+    }
   }
 }
 
@@ -130,4 +135,31 @@ boolean overCircle(int x, int y, int diameter) {
   } else {
     return false;
   }
+}
+void calculatePoints(){
+  for(int i = 1; i < 47; i += 1){
+    getTicks(i);
+  }
+}
+void getTicks(int num){
+  float turn;
+    float distance = dist(PointXVal[num], PointYVal[num], PointXVal[num - 1], PointYVal[num - 1]);
+    distance = distance * 23.4375;
+    leftTicks[num * 2] = round(distance);
+    rightTicks[num * 2] = round(distance);
+    if((PointYVal[num + 1] - PointYVal[num]) == 0 || (PointYVal[num + 2] - PointYVal[num + 1]) == 0){
+      turn = 0;
+    }else{
+    float current = atan((PointXVal[num + 1] - PointXVal[num]) / (PointYVal[num + 1] - PointYVal[num]));
+    float next = atan((PointXVal[num + 2] - PointXVal[num + 1]) / (PointYVal[num + 2] - PointYVal[num + 1]));
+    current = degrees(current); //<>//
+    next = degrees(next);
+    turn = next - current;
+    if(turn > 180){
+      turn = 360 - turn;
+    }
+    turn = 1000/90 * turn;
+    }
+    leftTicks[num * 2 + 1] = round(-turn);
+    rightTicks[num * 2 + 1] = round(turn);
 }
