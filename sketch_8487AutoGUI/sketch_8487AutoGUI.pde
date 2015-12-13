@@ -14,6 +14,8 @@ int[] PointXVal = new int[50];
 int[] PointYVal = new int[50];
 int[] leftTicks = new int[100];
 int[] rightTicks = new int[100];
+int[] Angles = new int[50];
+int AngleIterator = 1;
 PrintWriter Coordinates;
 PImage background;
 
@@ -93,13 +95,13 @@ void clearPoints(){
 }
 
 void writeToFile(){
-  calculatePoints();
- for(int i = 0; i < 50; i++){
+ calculatePoints();
+ for(int i = 1; i < 50; i++){
   Coordinates.print(leftTicks[i]+", ");
  }
  Coordinates.println();
- for(int j = 0; j < 50; j++){
-   Coordinates.print(rightTicks[j]+", ");
+ for(int j = 1; j < 50; j++){
+   Coordinates.print(Angles[j]+", ");
  }
  Coordinates.println();
  Coordinates.close();
@@ -139,27 +141,23 @@ boolean overCircle(int x, int y, int diameter) {
 void calculatePoints(){
   for(int i = 1; i < 47; i += 1){
     getTicks(i);
+    getAngle(i);
   }
 }
 void getTicks(int num){
-  float turn;
     float distance = dist(PointXVal[num], PointYVal[num], PointXVal[num - 1], PointYVal[num - 1]);
     distance = distance * 23.4375;
-    leftTicks[num * 2] = round(distance);
-    rightTicks[num * 2] = round(distance);
-    if((PointYVal[num + 1] - PointYVal[num]) == 0 || (PointYVal[num + 2] - PointYVal[num + 1]) == 0){
-      turn = 0;
-    }else{
-    float current = atan((PointXVal[num + 1] - PointXVal[num]) / (PointYVal[num + 1] - PointYVal[num]));
-    float next = atan((PointXVal[num + 2] - PointXVal[num + 1]) / (PointYVal[num + 2] - PointYVal[num + 1]));
-    current = degrees(current); //<>//
-    next = degrees(next);
-    turn = next - current;
-    if(turn > 180){
-      turn = 360 - turn;
-    }
-    turn = 1000/90 * turn;
-    }
-    leftTicks[num * 2 + 1] = round(-turn);
-    rightTicks[num * 2 + 1] = round(turn);
+    leftTicks[num] = round(distance);
+    rightTicks[num * 2] = round(distance); //<>//
+}
+
+void getAngle(int num){
+  float turn;
+  PVector Line1 = new PVector(PointYVal[num+1] - PointYVal[num], PointXVal[num+1], PointXVal[num]);
+  PVector Line2 = new PVector(PointYVal[num+2] - PointYVal[num+1], PointXVal[num+2], PointXVal[num+1]);
+  turn = PVector.angleBetween(Line1, Line2);
+  if (AngleIterator < 50){
+    Angles[AngleIterator] = int(degrees(turn));
+    AngleIterator++;
+  }
 }
